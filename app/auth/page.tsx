@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../globals.css";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "../contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
@@ -9,6 +12,44 @@ export default function AuthPage() {
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const supabase = createClient();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user && !authLoading) {
+      router.push("/");
+    }
+  }, [user, authLoading, router]);
+
+  async function handleAuth(e: React.FormEvent) {
+    e.preventDefault();
+
+    setLoading(true);
+    try {
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        if (data.user && !data.session) {
+          setError("Please check your email or confirmation link");
+          return;
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+      }
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 to-red-100 dark:from-gray-900 dark:to-gray-800">
@@ -22,7 +63,7 @@ export default function AuthPage() {
           </p>
         </div>
 
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleAuth}>
           <div>
             <label
               htmlFor="email"
@@ -62,7 +103,25 @@ export default function AuthPage() {
               {error}
             </div>
           )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50"
+          >
+            {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+          </button>
         </form>
+        <div className="text-center">
+          <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-pink-600 dark:text-pink-400 hover:text-pink-500 dark:hover:text-pink-300 text-sm"
+          >
+            {isSignUp
+              ? "Already have an any account? sign in"
+              : "Don't have any account? sign up"}
+          </button>
+        </div>
       </div>
     </div>
   );
