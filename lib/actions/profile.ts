@@ -26,3 +26,31 @@ export default async function getCurrentUserProfile() {
 
   return profile;
 }
+
+export async function uploadProfilePhoto(file: File) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${user.id}-${Date.now}.${fileExt}`;
+
+  const { error } = await supabase.storage
+    .from("profile-photos")
+    .upload(fileName, file, { cacheControl: "3600", upsert: false });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("profile-photos").getPublicUrl(fileName);
+  return { success: true, url: publicUrl };
+}
