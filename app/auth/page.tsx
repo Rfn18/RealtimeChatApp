@@ -32,6 +32,7 @@ export default function AuthPage() {
           email,
           password,
         });
+
         if (error) throw error;
         if (data.user && !data.session) {
           setError("Please check your email or confirmation link");
