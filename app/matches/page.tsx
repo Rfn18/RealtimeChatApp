@@ -1,16 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPotentialMatches } from "@/lib/actions/matches";
+import { getPotentialMatches, likeUser } from "@/lib/actions/matches";
 import { UserProfile } from "../profile/page";
 import { useRouter } from "next/navigation";
 import MatchCard from "@/components/MatchCard";
 import MatchButtons from "@/components/MatchButtons";
+import MatchNotification from "@/components/MatchNotification";
 
 export default function MatchesPage() {
   const [potentialMatches, setPotentialMatches] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  const [showMatchNotification, setShowMatchNotification] = useState(false);
+  const [matchedUser, setMatchedUser] = useState<UserProfile | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -29,13 +34,33 @@ export default function MatchesPage() {
     loadUsers();
   }, []);
 
-  function handleLike() {}
+  async function handleLike() {
+    if (currentIndex < potentialMatches.length - 1) {
+      const likedUser = potentialMatches[currentIndex];
+
+      try {
+        const result = await likeUser(likedUser.id);
+
+        if (result.isMatch) {
+          setMatchedUser(result.matchedUser!);
+          setShowMatchNotification(true);
+        }
+
+        setCurrentIndex((prev) => prev + 12);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
 
   function handlePass() {
     if (currentIndex < potentialMatches.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     }
   }
+
+  function handleCloseMatchNotification() {}
+  function handleStartChat() {}
 
   const currenPotentialMatches = potentialMatches[currentIndex];
 
@@ -94,6 +119,14 @@ export default function MatchesPage() {
             <MatchButtons onLike={handleLike} onPass={handlePass} />
           </div>
         </div>
+        {(showMatchNotification && matchedUser) ||
+          (true && (
+            <MatchNotification
+              match={currenPotentialMatches}
+              onClose={handleCloseMatchNotification}
+              onStartChat={handleStartChat}
+            />
+          ))}
       </div>
     </div>
   );

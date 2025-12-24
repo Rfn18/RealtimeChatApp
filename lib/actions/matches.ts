@@ -78,7 +78,7 @@ export async function likeUser(toUserId: string) {
     throw new Error("Not authenticated.");
   }
 
-  const { error: likeError } = await supabase
+  const { error: likeError } = await supabase 
     .from("likes")
     .insert({ from_user_id: user.id, to_user_id: toUserId });
 
@@ -91,4 +91,28 @@ export async function likeUser(toUserId: string) {
     .select("*")
     .eq("from_user_id", toUserId)
     .eq("to_user_id", user.id);
+
+  if (checkError) {
+    throw new Error("Failed to check for match");
+  }
+
+  if (existingLike) {
+    const { data: matchedUser, error: checkError } = await supabase
+      .from("likes")
+      .select("*")
+      .eq("id", toUserId)
+      .single();
+
+    if (checkError) {
+      throw new Error("Failed to fetch match user");
+    }
+
+    return {
+      success: true,
+      isMatch: true,
+      matchedUser: matchedUser as UserProfile,
+    };
+  }
+
+  return { success: true, isMatch: false };
 }
