@@ -3,6 +3,7 @@
 import getCurrentUserProfile from "@/lib/actions/profile";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { calculateAge } from "@/lib/helpers/calculate-age";
 
 export interface UserProfile {
   id: string;
@@ -11,6 +12,7 @@ export interface UserProfile {
   email: string;
   gender: "male" | "famale" | "other";
   bio: string;
+  birthdate: string;
   avatar_url: string;
   preferences: UserPreferences;
   location_lat?: number;
@@ -56,22 +58,6 @@ export default function Profile() {
     loadProfile();
   }, []);
 
-  function calculateAge(birthdate: string) {
-    const today = new Date();
-    const birthDate = new Date(birthdate);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return age;
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
@@ -110,7 +96,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-auto bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
