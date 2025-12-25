@@ -23,7 +23,6 @@ export default function MatchesPage() {
       try {
         const potentialMatchesData = await getPotentialMatches();
         setPotentialMatches(potentialMatchesData);
-        console.log(potentialMatchesData);
       } catch (error) {
         console.error(error);
       } finally {
@@ -34,8 +33,21 @@ export default function MatchesPage() {
     loadUsers();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Loading your matches...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   async function handleLike() {
-    if (currentIndex < potentialMatches.length - 1) {
+    if (currentIndex < potentialMatches.length) {
       const likedUser = potentialMatches[currentIndex];
 
       try {
@@ -46,7 +58,7 @@ export default function MatchesPage() {
           setShowMatchNotification(true);
         }
 
-        setCurrentIndex((prev) => prev + 12);
+        setCurrentIndex((prev) => prev + 1);
       } catch (error) {
         console.error(error);
       }
@@ -62,20 +74,38 @@ export default function MatchesPage() {
   function handleCloseMatchNotification() {}
   function handleStartChat() {}
 
-  const currenPotentialMatches = potentialMatches[currentIndex];
-
-  if (loading) {
+  if (currentIndex >= potentialMatches.length) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            Loading your matches...
+      <div className="h-full bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">💕</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            No more profiles to show
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Check back later for new matches, or try adjusting your preferences!
           </p>
+          <button
+            onClick={() => setCurrentIndex(0)}
+            className="bg-gradient-to-r from-pink-500 to-red-500 text-white font-semibold py-3 px-6 rounded-full hover:from-pink-600 hover:to-red-600 transition-all duration-200"
+          >
+            Refresh
+          </button>
         </div>
+        {showMatchNotification && matchedUser && (
+          <MatchNotification
+            match={matchedUser}
+            onClose={handleCloseMatchNotification}
+            onStartChat={handleStartChat}
+          />
+        )}
       </div>
     );
   }
+
+  const currenPotentialMatches = potentialMatches[currentIndex];
 
   return (
     <div className="h-full overflow-y-auto bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800">

@@ -91,20 +91,21 @@ export async function likeUser(toUserId: string) {
     .from("likes")
     .select("*")
     .eq("from_user_id", toUserId)
-    .eq("to_user_id", user.id);
+    .eq("to_user_id", user.id)
+    .single();
 
-  if (checkError) {
+  if (checkError && checkError.code !== "PGRST116") {
     throw new Error("Failed to check for match");
   }
 
   if (existingLike) {
-    const { data: matchedUser, error: checkError } = await supabase
-      .from("likes")
+    const { data: matchedUser, error: userError } = await supabase
+      .from("users")
       .select("*")
       .eq("id", toUserId)
       .single();
 
-    if (checkError) {
+    if (userError) {
       throw new Error("Failed to fetch match user");
     }
 

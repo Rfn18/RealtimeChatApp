@@ -14,12 +14,12 @@ export default function MatchNotification({
 }: MatchNotificationProps) {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   useEffect(() => {
-    const timeOut = setTimeout(() => {
+    const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onClose, 300);
     }, 5000);
 
-    return () => clearTimeout(timeOut);
+    return () => clearTimeout(timer);
   }, [onClose]);
 
   function handleClose() {
