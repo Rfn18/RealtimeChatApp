@@ -78,9 +78,10 @@ export async function likeUser(toUserId: string) {
     throw new Error("Not authenticated.");
   }
 
-  const { error: likeError } = await supabase 
-    .from("likes")
-    .insert({ from_user_id: user.id, to_user_id: toUserId });
+  const { error: likeError } = await supabase.from("likes").insert({
+    from_user_id: user.id,
+    to_user_id: toUserId,
+  });
 
   if (likeError) {
     throw new Error("Failed to create like");

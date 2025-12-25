@@ -26,6 +26,11 @@ export default function MatchNotification({
     setIsVisible(false);
     setTimeout(onClose, 300);
   }
+
+  function handleStartChat() {
+    onStartChat();
+    onClose();
+  }
   return (
     <div
       className={`fixed top-4 right-4 z-50 transition-all duration-300 ${
@@ -71,7 +76,7 @@ export default function MatchNotification({
 
             <div className="flex space-x-2">
               <button
-                // onClick={handleStartChat}
+                onClick={handleStartChat}
                 className="flex-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-sm font-semibold py-2 px-4 rounded-full hover:from-pink-600 hover:to-red-600 transition-all duration-200"
               >
                 Start Chat

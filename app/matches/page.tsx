@@ -119,14 +119,13 @@ export default function MatchesPage() {
             <MatchButtons onLike={handleLike} onPass={handlePass} />
           </div>
         </div>
-        {(showMatchNotification && matchedUser) ||
-          (true && (
-            <MatchNotification
-              match={currenPotentialMatches}
-              onClose={handleCloseMatchNotification}
-              onStartChat={handleStartChat}
-            />
-          ))}
+        {showMatchNotification && matchedUser && (
+          <MatchNotification
+            match={matchedUser}
+            onClose={handleCloseMatchNotification}
+            onStartChat={handleStartChat}
+          />
+        )}
       </div>
     </div>
   );
