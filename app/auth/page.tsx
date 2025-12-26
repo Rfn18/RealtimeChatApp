@@ -26,6 +26,8 @@ export default function AuthPage() {
     e.preventDefault();
 
     setLoading(true);
+    setError("");
+
     try {
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
@@ -43,8 +45,6 @@ export default function AuthPage() {
           email,
           password,
         });
-        console.log("LOGIN DATA:", data);
-        console.log("LOGIN ERROR:", error);
         if (error) throw error;
       }
     } catch (error: any) {

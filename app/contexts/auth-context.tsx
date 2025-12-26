@@ -2,6 +2,7 @@
 import { User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
@@ -15,6 +16,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
     async function checkUser() {
@@ -31,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(session?.user ?? null);
         });
 
-        return subscription.unsubscribe();
+        return () => subscription.unsubscribe();
       } catch (error) {
         console.log(error);
       } finally {
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signOut() {
     try {
       await supabase.auth.signOut();
+      router.push("/auth");
     } catch (error) {
       console.log("Error signing out", error);
     }
