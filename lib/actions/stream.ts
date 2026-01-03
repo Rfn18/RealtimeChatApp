@@ -1,3 +1,5 @@
+"use server";
+
 import { StreamChat } from "stream-chat";
 import { createClient } from "../supabase/server";
 
@@ -71,7 +73,14 @@ export async function createOrGetChannel(otherUserId: string) {
   const sortedIds = [user.id, otherUserId].sort();
   const combinedIds = sortedIds.join("_");
 
-  const channelId = `match_${combinedIds}`;
+  let hash = 0
+  for (let i = 0; i < combinedIds.length; i++) {
+    const char = combinedIds.charCodeAt(i)
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash
+  }
+
+  const channelId = `match_${Math.abs(hash).toString(36)}`;
 
   const serverClient = StreamChat.getInstance(
     process.env.NEXT_PUBLIC_STREAM_API_KEY!,
@@ -107,12 +116,12 @@ export async function createOrGetChannel(otherUserId: string) {
     console.log("Channel creation error", error);
 
     if (error instanceof Error && !error.message.includes("already exist")) {
-      throw error
+      throw error;
     }
   }
-  
+
   return {
     channelType: "messaging",
-    channelId
-  }
+    channelId,
+  };
 }
