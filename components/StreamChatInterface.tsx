@@ -1,5 +1,5 @@
 import { UserProfile } from "@/app/profile/page";
-import { getStreamUserToken } from "@/lib/actions/stream";
+import { createOrGetChannel, getStreamUserToken } from "@/lib/actions/stream";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StreamChat } from "stream-chat";
@@ -37,7 +37,14 @@ export default function StreamChatInterface({
           token
         );
 
-        const {} = await createOrGetChannel(otherUser.id);
+        const { channelType, channelId } = await createOrGetChannel(
+          otherUser.id
+        );
+
+        const chatChannel = chatClient.channel(channelType, channelId)
+        await chatChannel.watch()
+
+        
       } catch (error) {
         router.push("/chat");
       } finally {
