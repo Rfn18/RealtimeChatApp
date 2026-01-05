@@ -7,16 +7,18 @@ import StreamChatInterface from "@/components/StreamChatInterface";
 import { getUserMatches } from "@/lib/actions/matches";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ChatConversationPage() {
   const [otherUser, setOtherUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const params = useParams();
-  const user = useAuth();
+  const { user } = useAuth();
 
   const userId = params.userId as string;
+
+  const chatInterfaceRef = useRef<{ handelVideoCall: () => void } | null>(null);
 
   useEffect(() => {
     async function loadUserData() {
@@ -87,10 +89,15 @@ export default function ChatConversationPage() {
   return (
     <div className="h-screen bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-4xl mx-auto h-full flex flex-col">
-        <ChatHeader user={otherUser} onVideoCall={() => {}} />
+        <ChatHeader
+          user={otherUser}
+          onVideoCall={() => {
+            chatInterfaceRef.current?.handelVideoCall();
+          }}
+        />
 
         <div className="flex-1 min-h-8">
-          <StreamChatInterface otherUser={otherUser} />
+          <StreamChatInterface otherUser={otherUser} ref={chatInterfaceRef} />
         </div>
       </div>
     </div>

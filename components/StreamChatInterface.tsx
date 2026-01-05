@@ -1,7 +1,7 @@
 import { UserProfile } from "@/app/profile/page";
 import { createOrGetChannel, getStreamUserToken } from "@/lib/actions/stream";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Channel, Event, StreamChat } from "stream-chat";
 
 interface Message {
@@ -14,8 +14,10 @@ interface Message {
 
 export default function StreamChatInterface({
   otherUser,
+  ref,
 }: {
   otherUser: UserProfile;
+  ref: RefObject<{ handleVideoCall: () => void } | null>;
 }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -140,7 +142,13 @@ export default function StreamChatInterface({
         client.disconnectUser();
       }
     };
-  }, []);
+  }, [otherUser]);
+
+  async function handleVideoCall() {}
+
+  useImperativeHandle(ref, () => {
+    
+  })
 
   async function handleSendMessage(e: React.FormEvent) {
     e.preventDefault();
